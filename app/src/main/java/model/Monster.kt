@@ -13,16 +13,16 @@ class Monster(var visible: Boolean = false, var position_x: Int = 0, var positio
         image.visibility = View.GONE
     }
 
-    fun appear(limit_x: Int) {
-        position_x = Random().nextInt(limit_x - 250) //TODO faire varier la position X (random)
-        position_y = 0
-        visible = true
-
+    fun appear(limit_x: Int, screenHeight: Int) {
         image.setY(position_y.toFloat())
         image.setX(position_x.toFloat())
-        image.getLayoutParams().height = 250
-        image.getLayoutParams().width = 250
+        image.getLayoutParams().height = screenHeight / 10
+        image.getLayoutParams().width = screenHeight / 10
         image.setImageResource(R.drawable.monster)
+
+        position_x = Random().nextInt(limit_x - image.getLayoutParams().width) //TODO a corriger
+        position_y = 0
+        visible = true //TODO enlever plus tard
 
         image.visibility = View.VISIBLE
     }

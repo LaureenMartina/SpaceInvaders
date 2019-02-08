@@ -1,21 +1,20 @@
 package com.example.lays.spaceinvaders
 
-import android.content.Context
-import android.opengl.Visibility
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.Toast
 import model.Monster
 import model.Ship
 import mu.KotlinLogging
 import java.util.*
+import kotlin.collections.AbstractList
+import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 
 class GameActivity : AppCompatActivity() {
@@ -29,10 +28,11 @@ class GameActivity : AppCompatActivity() {
     lateinit var ship_img: ImageView
     lateinit var mainLayout: RelativeLayout
 
-    lateinit var imageViewMonster: ImageView
+    //lateinit var imageViewMonster: ImageView
     lateinit var imgViewShip: ImageView
 
-    lateinit var monster: Monster // TODO changer en tableau liste de monstres
+    // lateinit var monster: Monster // TODO changer en tableau liste de monstres
+    var monsterList: ArrayList<Monster> = ArrayList()
     lateinit var ship: Ship
 
     // Log.DEBUG message en Kotlin
@@ -50,59 +50,77 @@ class GameActivity : AppCompatActivity() {
 
         mainLayout = findViewById(R.id.gameActivity)
 
-        // ********** TEST **********
-        val paramShip = mainLayout.getLayoutParams() as RelativeLayout.LayoutParams
-        paramShip.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-        paramShip.addRule(RelativeLayout.CENTER_HORIZONTAL)
-
-
-        imageViewMonster = ImageView(this)
-        monster = Monster(false, 0,0, imageViewMonster)
 
         imgViewShip = ImageView(this)
+
         ship = Ship(0, 0, false, imgViewShip)
 
-        mainLayout.addView(monster.image)
-        mainLayout.addView(ship.img)
+        val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
+        mainLayout.addView(imgViewShip, layoutParams)
+        ship.displayShip(screenWidth, screenHeight)
 
-        monster.appear(screenWidth)
-        ship.displayShip()
+        createMonsterLine()
 
-
-
-        ship_img.setOnClickListener(View.OnClickListener {
+        ship.img.setOnClickListener(View.OnClickListener {
             ship.shootMonster()
 
             //TODO à corriger
-            Log.d("TOTO monster",  monster.position_x.toString())
-            Log.d("TOTO ship",  ship_img.x.toString())
+            // Log.d("TOTO monster",  monster.position_x.toString())
+            Log.d("TOTO ship",  ship.img.x.toString())
 
-            if (ship_img.x >= monster.position_x + 20 || ship_img.x  <= monster.position_x - 20) { // TODO lier img ship à l'objet
+            /*if (ship.img.x >= monster.position_x + 20 || ship.img.x  <= monster.position_x - 20) {
                 monster.disappear()
-            }
+            }*/
         })
 
         detector = GestureDetector(this@GameActivity, MyGestureDetector())
-        ship_img.setOnTouchListener() {
+
+        ship.img.setOnTouchListener() {
             v, aEvent ->
             detector!!.onTouchEvent(aEvent)
         }
 
         timer = Timer("SettingUp", false).schedule(1000, 1000) {
-            monster.image.setY(monster.image.getY() + 50)
+            //Log.d("TITI limit",  (screenHeight - monster.image.layoutParams.height).toString())
+            //Log.d("TITI monster",  monster.image.getY().toInt().toString())
 
-            //Log.d("TOTO SCREEN H", monster.image.getY().toString())
-            // Log.d("TOTO screenHeight", screenHeight.toString())
+            createMonsterLine()
 
-            if(monster.image.getY().toInt() >= 1450) { // TODO trouver le moyen d'avoir la bonne limit en fct des écrans (screenHeight - 200)
-                // monster.disappear()
-                Log.d("TIMER", "arret monstre")
-                // Toast.makeText(this@GameActivity, "GAME OVER", Toast.LENGTH_SHORT).show()
-                cancel()
+            val pas = screenHeight / 20
+
+            for (monster in monsterList) {
+                monster.image.setY(monster.image.getY() + pas)
+
+                if(monster.image.getY().toInt() >= (screenHeight - (pas * 4))) { // TODO enlever le title bar et mettre pas * 2
+                    gameOver()
+                    cancel()
+                }
             }
 
             //TODO créer de nouveaux monster + déplacement
             //TODO rajouter les image view monster au fir et a mesure + les insérer dans une list
+        }
+    }
+
+    fun createMonsterLine() {
+        this@GameActivity.runOnUiThread(java.lang.Runnable {
+            for (i in 1..5) {
+                val imageViewMonster = ImageView(this@GameActivity)
+                val monster = Monster(false, 0, 0, imageViewMonster)
+                mainLayout.addView(monster.image)
+                monster.appear(screenWidth, screenHeight)
+                monsterList.add(monsterList.size, monster)
+
+            }
+        })
+    }
+
+    fun gameOver() {
+        this@GameActivity.runOnUiThread(java.lang.Runnable {
+            //TODO afficher le GAMEOVER : faire appel à une méthode de l'activité (voir error d'exception toast)
+            Toast.makeText().show()
         }
     }
 

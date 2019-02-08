@@ -14,11 +14,11 @@ class Ship(var position_x: Int = 0, var position_y: Int = 0, var isShooting: Boo
         }, 3000)
     }
 
-    fun displayShip() {
+    fun displayShip(screenWidth: Int, screenHeight: Int) {
         img.setY(position_y.toFloat())
         img.setX(position_x.toFloat())
-        img.getLayoutParams().height = 250
-        img.getLayoutParams().width = 250
+        img.getLayoutParams().height = screenHeight / 10
+        img.getLayoutParams().width = screenWidth / 6
         img.setImageResource(R.drawable.ship)
 
         img.visibility = View.VISIBLE
