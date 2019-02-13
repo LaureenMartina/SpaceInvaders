@@ -13,11 +13,14 @@ import model.Monster
 import model.Ship
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.AbstractList
 import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 
 class GameActivity : AppCompatActivity() {
+
+    private val logger = KotlinLogging.logger {}
 
     var detector: GestureDetector? = null
     var screenWidth = 0
@@ -25,24 +28,19 @@ class GameActivity : AppCompatActivity() {
     var anim : TranslateAnimation? = null
 
     lateinit var timer: TimerTask
-    lateinit var ship_img: ImageView
     lateinit var mainLayout: RelativeLayout
 
-    //lateinit var imageViewMonster: ImageView
     lateinit var imgViewShip: ImageView
 
-    // lateinit var monster: Monster // TODO changer en tableau liste de monstres
-    var monsterList: ArrayList<Monster> = ArrayList()
+    var monsterList: ConcurrentLinkedQueue<Monster> = ConcurrentLinkedQueue()
     lateinit var ship: Ship
-
-    // Log.DEBUG message en Kotlin
-    private val logger = KotlinLogging.logger {}
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
+        /* ----- Récupérer la taille de l'écran ----- */
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWidth = displayMetrics.widthPixels
@@ -50,10 +48,10 @@ class GameActivity : AppCompatActivity() {
 
         mainLayout = findViewById(R.id.gameActivity)
 
-
+        /* ----- Création de l'objet image Vaisseau ----- */
         imgViewShip = ImageView(this)
 
-        ship = Ship(0, 0, false, imgViewShip)
+        ship = Ship(imgViewShip)
 
         val layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
@@ -61,18 +59,59 @@ class GameActivity : AppCompatActivity() {
         mainLayout.addView(imgViewShip, layoutParams)
         ship.displayShip(screenWidth, screenHeight)
 
+
         createMonsterLine()
 
         ship.img.setOnClickListener(View.OnClickListener {
-            ship.shootMonster()
+            val imgShoot = ImageView(this)
 
-            //TODO à corriger
-            // Log.d("TOTO monster",  monster.position_x.toString())
-            Log.d("TOTO ship",  ship.img.x.toString())
+            imgShoot.setY((screenHeight - ship.img.height).toFloat())
+            imgShoot.setX((ship.img.x + (ship.img.width/2)))
+            imgShoot.setImageResource(R.drawable.shoot)
 
-            /*if (ship.img.x >= monster.position_x + 20 || ship.img.x  <= monster.position_x - 20) {
-                monster.disappear()
-            }*/
+            mainLayout.addView(imgShoot)
+
+            imgShoot.getLayoutParams().height = 100
+            imgShoot.getLayoutParams().width = 40
+
+            val timer = Timer("SettingShooting", false).schedule(0, 300) {
+
+                val pas = screenHeight / 12
+
+                imgShoot.y = (imgShoot.y - pas)
+
+                for (monster in monsterList) {
+                    Log.d("TOTO monster pos y",  monster.image.y.toString())
+                    Log.d("TOTO monster height",   monster.image.height.toString())
+
+                    Log.d("TOTO shoot y",  imgShoot.y.toString())
+
+                    if((monster.image.x + (monster.image.width/2)) > ship.img.x &&
+                            (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) &&
+                            (monster.image.y + monster.image.height + 10) == imgShoot.y)
+                    {
+                        Log.d("TOTO shoot",  "monster shooted " + monster.image.x.toString())
+                        this@GameActivity.runOnUiThread(java.lang.Runnable {
+                            monster.disappear()
+                            mainLayout.removeView(imgShoot)
+                        })
+
+                        cancel()
+                        monsterList.remove(monster)
+                        break
+                    }
+                }
+
+                if(imgShoot.y <= 0) {
+                    this@GameActivity.runOnUiThread(java.lang.Runnable {
+                        mainLayout.removeView(imgShoot)
+                    })
+                    cancel()
+                }
+            }
+
+            //ship.shootMonster(imgShoot, screenWidth, screenHeight)
+
         })
 
         detector = GestureDetector(this@GameActivity, MyGestureDetector())
@@ -82,76 +121,80 @@ class GameActivity : AppCompatActivity() {
             detector!!.onTouchEvent(aEvent)
         }
 
-        timer = Timer("SettingUp", false).schedule(1000, 1000) {
-            //Log.d("TITI limit",  (screenHeight - monster.image.layoutParams.height).toString())
-            //Log.d("TITI monster",  monster.image.getY().toInt().toString())
-
+        timer = Timer("SettingUp", false).schedule(1000, 2000) {
             createMonsterLine()
 
-            val pas = screenHeight / 20
+            val pas = screenHeight / 10
 
             for (monster in monsterList) {
                 monster.image.setY(monster.image.getY() + pas)
 
-                if(monster.image.getY().toInt() >= (screenHeight - (pas * 4))) { // TODO enlever le title bar et mettre pas * 2
+                //Log.d("TITI limit monster",  (screenHeight - monster.image.layoutParams.height).toString())
+                //Log.d("TITI monster",  monster.image.getY().toString())
+
+                if(monster.image.y.toInt() >= (screenHeight - (pas * 2  + ship.img.height))) {
                     gameOver()
                     cancel()
                 }
             }
-
-            //TODO créer de nouveaux monster + déplacement
-            //TODO rajouter les image view monster au fir et a mesure + les insérer dans une list
         }
     }
 
     fun createMonsterLine() {
         this@GameActivity.runOnUiThread(java.lang.Runnable {
-            for (i in 1..5) {
+
+            var maxLimit: Int = 10
+
+            for (i in 1..3) {
+                var rand = Random().nextInt(maxLimit)
+
                 val imageViewMonster = ImageView(this@GameActivity)
-                val monster = Monster(false, 0, 0, imageViewMonster)
+                val monster = Monster(rand, imageViewMonster)
                 mainLayout.addView(monster.image)
                 monster.appear(screenWidth, screenHeight)
-                monsterList.add(monsterList.size, monster)
+                monsterList.add(monster)
 
+                maxLimit = screenWidth - monster.image.getLayoutParams().width
             }
         })
     }
 
     fun gameOver() {
         this@GameActivity.runOnUiThread(java.lang.Runnable {
-            //TODO afficher le GAMEOVER : faire appel à une méthode de l'activité (voir error d'exception toast)
-            Toast.makeText().show()
-        }
+            Toast.makeText(this, "...GAME OVER...", Toast.LENGTH_SHORT).show()
+        })
     }
 
     fun onSwipeRight(dX: Float) {
-        var pos = ship_img.getX() + dX
+        var pos = ship.img.x + dX
         if (pos > screenWidth ) {
-            anim = TranslateAnimation(0F, screenWidth.toFloat() - ship_img.getX(), 0F, 0F)
+
+            // TODO a enlever / corriger
+            anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
             anim!!.setDuration(700);
-            ship_img.startAnimation(anim)
-            ship_img.setX(screenWidth.toFloat())
+            ship.img.startAnimation(anim)
+            ship.img.setX(screenWidth.toFloat())
         } else {
             anim = TranslateAnimation(0F, dX, 0F, 0F)
             anim!!.setDuration(700);
-            ship_img.startAnimation(anim)
-            ship_img.setX(pos)
+            ship.img.startAnimation(anim)
+            ship.img.setX(pos)
         }
 
     }
 
     fun onSwipeLeft(dX: Float) {
-        var pos = ship_img.getX() + dX
+        var pos = ship.img.getX() + dX
         if (pos < 0) {
-            anim = TranslateAnimation(0F, 0F - ship_img.getX(), 0F, 0F)
+            anim = TranslateAnimation(0F, 0F - ship.img.getX(), 0F, 0F)
             anim!!.setDuration(700);
-            ship_img.startAnimation(anim)
-            ship_img.setX(0F)
+            ship.img.startAnimation(anim)
+            ship.img.setX(0F)
         }else {
             anim = TranslateAnimation(0F, dX, 0F, 0F)
             anim!!.setDuration(700);
-            ship_img.startAnimation(anim)
-            ship_img.setX(pos)
+            ship.img.startAnimation(anim)
+            ship.img.setX(pos)
         }
     }
 
