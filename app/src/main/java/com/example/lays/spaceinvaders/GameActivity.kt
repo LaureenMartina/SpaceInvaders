@@ -67,7 +67,7 @@ class GameActivity : AppCompatActivity() {
 
             imgShoot.setY((screenHeight - ship.img.height).toFloat())
             imgShoot.setX((ship.img.x + (ship.img.width/2)))
-            imgShoot.setImageResource(R.drawable.shoot)
+            imgShoot.setImageResource(R.drawable.bullet)
 
             mainLayout.addView(imgShoot)
 

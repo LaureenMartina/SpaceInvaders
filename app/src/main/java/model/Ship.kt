@@ -30,7 +30,7 @@ class Ship(/*var position_x: Int = 0, var position_y: Int = 0, */ var img: Image
     fun displayShip(screenWidth: Int, screenHeight: Int) {
         img.getLayoutParams().height = screenHeight / 10
         img.getLayoutParams().width = screenWidth / 6
-        img.setImageResource(R.drawable.vaisseau)
+        img.setImageResource(R.drawable.ship)
 
         img.visibility = View.VISIBLE
     }
