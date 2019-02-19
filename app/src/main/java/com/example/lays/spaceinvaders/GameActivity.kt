@@ -1,5 +1,6 @@
 package com.example.lays.spaceinvaders
 
+import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -83,8 +84,8 @@ class GameActivity : AppCompatActivity() {
                 for (monster in monsterList) {
 
                     if((monster.image.x + (monster.image.width/2)) > ship.img.x &&
-                            (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) &&
-                            (monster.image.y + monster.image.height + 10) == imgShoot.y)
+                            (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) /*&&
+                            (monster.image.y + monster.image.height + 10) == imgShoot.y*/)
                     {
                         this@GameActivity.runOnUiThread(java.lang.Runnable {
                             monster.disappear()
