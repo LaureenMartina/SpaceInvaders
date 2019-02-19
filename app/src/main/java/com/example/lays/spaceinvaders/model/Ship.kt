@@ -1,12 +1,8 @@
-package model
+package com.example.lays.spaceinvaders.model
 
-import android.os.Handler
-import android.util.Log
 import android.widget.ImageView
 import android.view.View
 import com.example.lays.spaceinvaders.R
-import java.util.*
-import kotlin.concurrent.schedule
 
 class Ship(/*var position_x: Int = 0, var position_y: Int = 0, */ var img: ImageView) {
 

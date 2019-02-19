@@ -1,26 +1,20 @@
 package com.example.lays.spaceinvaders
 
 import android.content.Intent
-import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
-import model.Monster
-import model.Ship
+import com.example.lays.spaceinvaders.model.Monster
+import com.example.lays.spaceinvaders.model.Ship
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.collections.AbstractList
-import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
-import android.support.v4.os.HandlerCompat.postDelayed
-import java.util.logging.Handler
 
 
 class GameActivity : AppCompatActivity() {
