@@ -81,16 +81,11 @@ class GameActivity : AppCompatActivity() {
                 imgShoot.y = (imgShoot.y - pas)
 
                 for (monster in monsterList) {
-                    Log.d("TOTO monster pos y",  monster.image.y.toString())
-                    Log.d("TOTO monster height",   monster.image.height.toString())
-
-                    Log.d("TOTO shoot y",  imgShoot.y.toString())
 
                     if((monster.image.x + (monster.image.width/2)) > ship.img.x &&
                             (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) &&
                             (monster.image.y + monster.image.height + 10) == imgShoot.y)
                     {
-                        Log.d("TOTO shoot",  "monster shooted " + monster.image.x.toString())
                         this@GameActivity.runOnUiThread(java.lang.Runnable {
                             monster.disappear()
                             mainLayout.removeView(imgShoot)
@@ -109,9 +104,6 @@ class GameActivity : AppCompatActivity() {
                     cancel()
                 }
             }
-
-            //ship.shootMonster(imgShoot, screenWidth, screenHeight)
-
         })
 
         detector = GestureDetector(this@GameActivity, MyGestureDetector())
@@ -128,9 +120,6 @@ class GameActivity : AppCompatActivity() {
 
             for (monster in monsterList) {
                 monster.image.setY(monster.image.getY() + pas)
-
-                //Log.d("TITI limit monster",  (screenHeight - monster.image.layoutParams.height).toString())
-                //Log.d("TITI monster",  monster.image.getY().toString())
 
                 if(monster.image.y.toInt() >= (screenHeight - (pas * 2  + ship.img.height))) {
                     gameOver()
@@ -169,7 +158,6 @@ class GameActivity : AppCompatActivity() {
         var pos = ship.img.x + dX
         if (pos > screenWidth ) {
 
-            // TODO a enlever / corriger
             anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
             anim!!.setDuration(700);
             ship.img.startAnimation(anim)
