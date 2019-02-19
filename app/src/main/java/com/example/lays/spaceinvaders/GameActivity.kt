@@ -1,6 +1,7 @@
 package com.example.lays.spaceinvaders
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -27,6 +28,7 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var timer: TimerTask
     private lateinit var mainLayout: RelativeLayout
+    private lateinit var timerMenu: TimerTask
 
     private lateinit var imgViewShip: ImageView
 
@@ -73,7 +75,7 @@ class GameActivity : AppCompatActivity() {
             imgShoot.getLayoutParams().height = 100
             imgShoot.getLayoutParams().width = 40
 
-            Timer("SettingShooting", false).schedule(0, 300) {
+            Timer("SettingShooting", false).schedule(0, 1000) {
 
                 val pas = screenHeight / 12
 
@@ -123,6 +125,9 @@ class GameActivity : AppCompatActivity() {
                 if(monster.image.y.toInt() >= (screenHeight - (pas * 2  + ship.img.height))) {
                     gameOver()
                     cancel()
+                    val timerMenu= Timer("GoToHomePage", false).schedule(3000, 60000) {
+                        callHomePage()
+                    }
                 }
             }
         }
@@ -153,18 +158,23 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    fun callHomePage() {
+        val i = Intent(this, MainActivity::class.java)
+        startActivity(i)
+    }
+
     fun onSwipeRight(dX: Float) {
         val pos = ship.img.x + dX
         if (pos > screenWidth ) {
 
-            anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
-            anim!!.setDuration(700)
-            ship.img.startAnimation(anim)
+            //anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
+            //anim!!.setDuration(700)
+            //ship.img.startAnimation(anim)
             ship.img.setX(screenWidth.toFloat())
         } else {
-            anim = TranslateAnimation(0F, dX, 0F, 0F)
-            anim!!.setDuration(700)
-            ship.img.startAnimation(anim)
+            //anim = TranslateAnimation(0F, dX, 0F, 0F)
+            //anim!!.setDuration(700)
+            //ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
 
@@ -173,14 +183,14 @@ class GameActivity : AppCompatActivity() {
     fun onSwipeLeft(dX: Float) {
         val pos = ship.img.getX() + dX
         if (pos < 0) {
-            anim = TranslateAnimation(0F, 0F - ship.img.getX(), 0F, 0F)
-            anim!!.setDuration(700)
-            ship.img.startAnimation(anim)
+            //anim = TranslateAnimation(0F, 0F - ship.img.getX(), 0F, 0F)
+            //anim!!.setDuration(700)
+            //ship.img.startAnimation(anim)
             ship.img.setX(0F)
         }else {
-            anim = TranslateAnimation(0F, dX, 0F, 0F)
-            anim!!.setDuration(700)
-            ship.img.startAnimation(anim)
+            //anim = TranslateAnimation(0F, dX, 0F, 0F)
+            //anim!!.setDuration(700)
+            //ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
     }
