@@ -3,19 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000"
     tools:context=".GameActivity"
     android:id="@+id/gameActivity">
-
-
-    <!--<ImageView
-        android:id="@+id/ship"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/ship"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        />-->
-
-
 
 </RelativeLayout>
