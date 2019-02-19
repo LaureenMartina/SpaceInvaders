@@ -1,10 +1,8 @@
-package model
+package com.example.lays.spaceinvaders.model
 
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.example.lays.spaceinvaders.R
-import java.util.*
 
 class Monster(var position_x: Int = 0, var image: ImageView){
 

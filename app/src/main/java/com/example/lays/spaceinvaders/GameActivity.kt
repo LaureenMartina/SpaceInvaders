@@ -1,42 +1,40 @@
 package com.example.lays.spaceinvaders
 
-import android.os.AsyncTask
+import android.annotation.SuppressLint
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
-import model.Monster
-import model.Ship
+import com.example.lays.spaceinvaders.model.Monster
+import com.example.lays.spaceinvaders.model.Ship
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.collections.AbstractList
-import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 
 class GameActivity : AppCompatActivity() {
 
     private val logger = KotlinLogging.logger {}
 
-    var detector: GestureDetector? = null
-    var screenWidth = 0
-    var screenHeight = 0
+    private var detector: GestureDetector? = null
+    private var screenWidth = 0
+    private var screenHeight = 0
     var anim : TranslateAnimation? = null
 
-    lateinit var timer: TimerTask
-    lateinit var mainLayout: RelativeLayout
+    private lateinit var timer: TimerTask
+    private lateinit var mainLayout: RelativeLayout
 
-    lateinit var imgViewShip: ImageView
+    private lateinit var imgViewShip: ImageView
 
-    var monsterList: ConcurrentLinkedQueue<Monster> = ConcurrentLinkedQueue()
+    private var monsterList: ConcurrentLinkedQueue<Monster> = ConcurrentLinkedQueue()
     lateinit var ship: Ship
 
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -63,7 +61,7 @@ class GameActivity : AppCompatActivity() {
 
         createMonsterLine()
 
-        ship.img.setOnClickListener(View.OnClickListener {
+        ship.img.setOnClickListener {
             val imgShoot = ImageView(this)
 
             imgShoot.setY((screenHeight - ship.img.height).toFloat())
@@ -75,7 +73,7 @@ class GameActivity : AppCompatActivity() {
             imgShoot.getLayoutParams().height = 100
             imgShoot.getLayoutParams().width = 40
 
-            val timer = Timer("SettingShooting", false).schedule(0, 300) {
+            Timer("SettingShooting", false).schedule(0, 300) {
 
                 val pas = screenHeight / 12
 
@@ -87,10 +85,10 @@ class GameActivity : AppCompatActivity() {
                             (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) /*&&
                             (monster.image.y + monster.image.height + 10) == imgShoot.y*/)
                     {
-                        this@GameActivity.runOnUiThread(java.lang.Runnable {
+                        this@GameActivity.runOnUiThread {
                             monster.disappear()
                             mainLayout.removeView(imgShoot)
-                        })
+                        }
 
                         cancel()
                         monsterList.remove(monster)
@@ -99,18 +97,18 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 if(imgShoot.y <= 0) {
-                    this@GameActivity.runOnUiThread(java.lang.Runnable {
+                    this@GameActivity.runOnUiThread {
                         mainLayout.removeView(imgShoot)
-                    })
+                    }
                     cancel()
                 }
             }
-        })
+        }
 
         detector = GestureDetector(this@GameActivity, MyGestureDetector())
 
-        ship.img.setOnTouchListener() {
-            v, aEvent ->
+        ship.img.setOnTouchListener {
+            _, aEvent ->
             detector!!.onTouchEvent(aEvent)
         }
 
@@ -130,13 +128,13 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    fun createMonsterLine() {
-        this@GameActivity.runOnUiThread(java.lang.Runnable {
+    private fun createMonsterLine() {
+        this@GameActivity.runOnUiThread {
 
-            var maxLimit: Int = 10
+            var maxLimit = 10
 
             for (i in 1..3) {
-                var rand = Random().nextInt(maxLimit)
+                val rand = Random().nextInt(maxLimit)
 
                 val imageViewMonster = ImageView(this@GameActivity)
                 val monster = Monster(rand, imageViewMonster)
@@ -146,26 +144,26 @@ class GameActivity : AppCompatActivity() {
 
                 maxLimit = screenWidth - monster.image.getLayoutParams().width
             }
-        })
+        }
     }
 
-    fun gameOver() {
-        this@GameActivity.runOnUiThread(java.lang.Runnable {
+    private fun gameOver() {
+        this@GameActivity.runOnUiThread {
             Toast.makeText(this, "...GAME OVER...", Toast.LENGTH_SHORT).show()
-        })
+        }
     }
 
     fun onSwipeRight(dX: Float) {
-        var pos = ship.img.x + dX
+        val pos = ship.img.x + dX
         if (pos > screenWidth ) {
 
             anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
-            anim!!.setDuration(700);
+            anim!!.setDuration(700)
             ship.img.startAnimation(anim)
             ship.img.setX(screenWidth.toFloat())
         } else {
             anim = TranslateAnimation(0F, dX, 0F, 0F)
-            anim!!.setDuration(700);
+            anim!!.setDuration(700)
             ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
@@ -173,21 +171,21 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun onSwipeLeft(dX: Float) {
-        var pos = ship.img.getX() + dX
+        val pos = ship.img.getX() + dX
         if (pos < 0) {
             anim = TranslateAnimation(0F, 0F - ship.img.getX(), 0F, 0F)
-            anim!!.setDuration(700);
+            anim!!.setDuration(700)
             ship.img.startAnimation(anim)
             ship.img.setX(0F)
         }else {
             anim = TranslateAnimation(0F, dX, 0F, 0F)
-            anim!!.setDuration(700);
+            anim!!.setDuration(700)
             ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
     }
 
-    inner class MyGestureDetector() : GestureDetector.SimpleOnGestureListener() {
+    inner class MyGestureDetector : GestureDetector.SimpleOnGestureListener() {
         private var mLastOnDownEvent: MotionEvent? = null
         private val SWIPE_MIN_DISTANCE = 100
         private val SWIPE_MAX_OFF_PATH = 100
@@ -215,15 +213,7 @@ class GameActivity : AppCompatActivity() {
                     onSwipeLeft(dX)
                 }
                 return true
-            } else
-                if (Math.abs(dX) < SWIPE_MAX_OFF_PATH && Math.abs(velocityY) >= SWIPE_THRESHOLD_VELOCITY && Math.abs(dY) >= SWIPE_MIN_DISTANCE) {
-                    if (dY > 0) {
-                        // Swipe UP
-                    } else {
-                        // Swipe DOWN
-                    }
-                    return true
-                }
+            }
             return false
         }
     }
