@@ -9,7 +9,7 @@ class Ship(var img: ImageView) {
     fun displayShip(screenWidth: Int, screenHeight: Int) {
         img.getLayoutParams().height = screenHeight / 10
         img.getLayoutParams().width = screenWidth / 6
-        img.setImageResource(R.drawable.ship)
+        img.setImageResource(R.drawable.ufo)
 
         img.visibility = View.VISIBLE
     }

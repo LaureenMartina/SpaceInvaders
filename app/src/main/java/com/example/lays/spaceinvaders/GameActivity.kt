@@ -125,7 +125,7 @@ class GameActivity : AppCompatActivity() {
                 if(monster.image.y.toInt() >= (screenHeight - (pas * 2  + ship.img.height))) {
                     gameOver()
                     cancel()
-                    val timerMenu= Timer("GoToHomePage", false).schedule(3000, 60000) {
+                    Timer("GoToHomePage", false).schedule(3000, 60000) {
                         callHomePage()
                     }
                 }
