@@ -16,7 +16,7 @@ class Monster(var position_x: Int = 0, var image: ImageView){
         image.setX(position_x.toFloat())
         image.getLayoutParams().height = screenHeight / 10
         image.getLayoutParams().width = screenHeight / 10
-        image.setImageResource(R.drawable.monster)
+        image.setImageResource(R.drawable.green_invader)
 
         image.visibility = View.VISIBLE
     }
