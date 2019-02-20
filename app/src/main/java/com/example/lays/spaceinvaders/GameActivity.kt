@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.*
-import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -24,11 +23,9 @@ class GameActivity : AppCompatActivity() {
     private var detector: GestureDetector? = null
     private var screenWidth = 0
     private var screenHeight = 0
-    var anim : TranslateAnimation? = null
 
     private lateinit var timer: TimerTask
     private lateinit var mainLayout: RelativeLayout
-    private lateinit var timerMenu: TimerTask
 
     private lateinit var imgViewShip: ImageView
 
@@ -60,9 +57,6 @@ class GameActivity : AppCompatActivity() {
         mainLayout.addView(imgViewShip, layoutParams)
         ship.displayShip(screenWidth, screenHeight)
 
-
-        createMonsterLine()
-
         ship.img.setOnClickListener {
             val imgShoot = ImageView(this)
 
@@ -75,18 +69,15 @@ class GameActivity : AppCompatActivity() {
             imgShoot.getLayoutParams().height = 100
             imgShoot.getLayoutParams().width = 40
 
-            Timer("SettingShooting", false).schedule(0, 1000) {
+            Timer("SettingShooting", false).schedule(0, 200) {
 
-                val pas = screenHeight / 12
+                val step = screenHeight / 12
 
-                imgShoot.y = (imgShoot.y - pas)
+                imgShoot.y = (imgShoot.y - step)
 
                 for (monster in monsterList) {
 
-                    if((monster.image.x + (monster.image.width/2)) > ship.img.x &&
-                            (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) /*&&
-                            (monster.image.y + monster.image.height + 10) == imgShoot.y*/)
-                    {
+                    if((monster.image.x + (monster.image.width/2)) > ship.img.x && (monster.image.x + (monster.image.width/2)) < (ship.img.x + ship.img.width) ) {
                         this@GameActivity.runOnUiThread {
                             monster.disappear()
                             mainLayout.removeView(imgShoot)
@@ -117,12 +108,12 @@ class GameActivity : AppCompatActivity() {
         timer = Timer("SettingUp", false).schedule(1000, 2000) {
             createMonsterLine()
 
-            val pas = screenHeight / 10
+            val step = screenHeight / 10
 
             for (monster in monsterList) {
-                monster.image.setY(monster.image.getY() + pas)
+                monster.image.setY(monster.image.getY() + step)
 
-                if(monster.image.y.toInt() >= (screenHeight - (pas * 2  + ship.img.height))) {
+                if(monster.image.y.toInt() >= (screenHeight - (step + ship.img.height))) {
                     gameOver()
                     cancel()
                     Timer("GoToHomePage", false).schedule(3000, 60000) {
@@ -166,31 +157,17 @@ class GameActivity : AppCompatActivity() {
     fun onSwipeRight(dX: Float) {
         val pos = ship.img.x + dX
         if (pos > screenWidth ) {
-
-            //anim = TranslateAnimation(0F, screenWidth.toFloat() - ship.img.getX(), 0F, 0F)
-            //anim!!.setDuration(700)
-            //ship.img.startAnimation(anim)
             ship.img.setX(screenWidth.toFloat())
         } else {
-            //anim = TranslateAnimation(0F, dX, 0F, 0F)
-            //anim!!.setDuration(700)
-            //ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
-
     }
 
     fun onSwipeLeft(dX: Float) {
         val pos = ship.img.getX() + dX
         if (pos < 0) {
-            //anim = TranslateAnimation(0F, 0F - ship.img.getX(), 0F, 0F)
-            //anim!!.setDuration(700)
-            //ship.img.startAnimation(anim)
             ship.img.setX(0F)
         }else {
-            //anim = TranslateAnimation(0F, dX, 0F, 0F)
-            //anim!!.setDuration(700)
-            //ship.img.startAnimation(anim)
             ship.img.setX(pos)
         }
     }
@@ -214,12 +191,10 @@ class GameActivity : AppCompatActivity() {
 
             if (Math.abs(dY) < SWIPE_MAX_OFF_PATH && Math.abs(velocityX) >= SWIPE_THRESHOLD_VELOCITY && Math.abs(dX) >= SWIPE_MIN_DISTANCE) {
                 if (dX > 0) {
-                    //Swipe Right
-                    logger.debug {"right click"}
+                    logger.debug {"swipe right"}
                     onSwipeRight(dX)
                 } else {
-                    // Swipe Left
-                    logger.debug {"left click"}
+                    logger.debug {"swipe left"}
                     onSwipeLeft(dX)
                 }
                 return true
